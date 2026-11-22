@@ -1,0 +1,56 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+.venv/
+venv/
+venv*/
+env/
+ENV/
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+.ipynb_checkpoints/
+.env
+.env.*
+!.env.example
+*.sqlite
+*.sqlite3
+*.db
+
+# Frontend
+node_modules/
+dist/
+build/
+coverage/
+.vite/
+*.log
+
+# Generated backend data and artifacts
+backend/data/
+backend/embeddings/
+backend/index/
+backend/ranking/models/
+*.npy
+*.pkl
+*.joblib
+*.faiss
+*.pt
+*.pth
+*.ckpt
+*.onnx
+*.safetensors
+*.h5
+*.hdf5
+*.bin
+*.index
+
+# IDE and OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

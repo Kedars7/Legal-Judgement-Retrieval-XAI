@@ -1,0 +1,660 @@
+DATA TRANSFORMATION DOCUMENT FOR FINAL 100 CASE DATA
+====================================================
+
+Purpose of this document
+------------------------
+
+- This file explains how the final 100-case data is created.
+- It explains the scripts in the order they are used.
+- It uses simple language so the transformation flow is easy to understand.
+- It only focuses on scripts that are connected to the final 100-case data pipeline.
+
+
+Final output of the pipeline
+----------------------------
+
+- The pipeline starts from Supreme Court judgment PDF files.
+- It selects 100 PDF judgments.
+- It extracts text from those PDFs.
+- It cleans the extracted judgment text.
+- It splits the cleaned text into searchable chunks.
+- It creates embeddings for those chunks using InLegalBERT.
+- It builds FAISS and BM25 indexes from the same chunk metadata.
+
+Current generated output in this repo:
+
+- data/processed/judgments_100
+  - Contains 100 selected PDF files.
+
+- data/processed/extracted_100
+  - Contains 100 JSON files with raw extracted text from PDFs.
+
+- data/processed/cleaned_100
+  - Contains 100 cleaned JSON judgment files.
+
+- data/processed/chunks/baseline/chunks.jsonl
+  - Contains 2122 text chunks.
+
+- data/processed/chunks/baseline/stats.json
+  - Contains chunking statistics.
+
+- embeddings/baseline_100/embeddings.npy
+  - Contains vector embeddings for all chunks.
+
+- embeddings/baseline_100/metadata.jsonl
+  - Contains metadata for the same 2122 chunks.
+
+- index/baseline_100/legal_judgments.faiss
+  - Contains the FAISS dense-search index.
+
+- index/bm25/bm25.pkl
+  - Contains the BM25 keyword-search index.
+
+- index/bm25/bm25_metadata.pkl
+  - Contains BM25 metadata aligned with the BM25 index.
+
+
+Complete transformation flow
+----------------------------
+
+1. Raw/source PDFs are prepared in:
+   - data/processed/judgments
+
+2. 100 PDFs are selected from that source folder and copied to:
+   - data/processed/judgments_100
+
+3. Text is extracted from each selected PDF and saved as JSON in:
+   - data/processed/extracted_100
+
+4. Extracted text is cleaned and metadata is extracted. The result is saved in:
+   - data/processed/cleaned_100
+
+5. Cleaned judgments are split into chunks and saved in:
+   - data/processed/chunks/baseline/chunks.jsonl
+
+6. Chunks are converted into vector embeddings and saved in:
+   - embeddings/baseline_100/embeddings.npy
+   - embeddings/baseline_100/metadata.jsonl
+
+7. Dense-search FAISS index is built from embeddings and saved in:
+   - index/baseline_100/legal_judgments.faiss
+
+8. Keyword-search BM25 index is built from the same metadata and saved in:
+   - index/bm25/bm25.pkl
+   - index/bm25/bm25_metadata.pkl
+
+
+Script 1: scripts/select_database.py
+------------------------------------
+
+What this script does:
+
+- This script prepares a larger source database of judgments.
+- It reads PDFs from:
+  - data/raw/supreme_court_judgments
+- It copies selected PDFs to:
+  - data/processed/judgments
+
+How it selects data:
+
+- It looks inside year-wise folders in the raw data directory.
+- It counts how many PDFs are available in all year folders.
+- It tries to select 5000 PDFs in total.
+- It selects PDFs proportionally from each year.
+  - Example: if one year has more PDFs, it gets a larger share in the selected set.
+- It uses random sampling.
+- The random seed is fixed as 42.
+  - This helps make the random selection repeatable.
+
+How it saves data:
+
+- It copies each selected PDF into:
+  - data/processed/judgments
+- The output file name is created as:
+  - year_originalPdfName
+
+Important note:
+
+- This script creates the larger source folder used before selecting the final 100 cases.
+- The final 100-case data is selected later by scripts/select_100_cases.py.
+
+
+Script 2: scripts/select_100_cases.py
+-------------------------------------
+
+What this script does:
+
+- This script selects the final 100 judgment PDFs.
+- It reads from:
+  - data/processed/judgments
+- It writes to:
+  - data/processed/judgments_100
+
+How it selects the 100 PDFs:
+
+- It finds all PDF files inside data/processed/judgments.
+- It tries to find the year from the PDF path.
+- It checks each part of the file path.
+- If a path part is a number between 1950 and 2025, that number is treated as the year.
+- Then it sorts PDFs by:
+  - newest year first
+  - file name alphabetically
+- It takes the first 100 PDFs after sorting.
+
+How it saves the selected PDFs:
+
+- It copies the selected PDFs into data/processed/judgments_100.
+- It tries to preserve the year folder structure.
+- The destination folder is:
+  - data/processed/judgments_100/<year>
+
+Important note about the current repo:
+
+- In the current data/processed/judgments folder, PDFs are stored directly in the folder.
+- The year is present in the filename, but not as a separate folder.
+- Because of that, this script may not detect the real year from the path.
+- When it cannot detect the year, it returns 0.
+- That is why the current selected PDFs are inside:
+  - data/processed/judgments_100/0
+
+Simple summary:
+
+- This script decides which 100 PDF judgments enter the final 100-case pipeline.
+- It copies those PDFs without changing their content.
+
+
+Script 3: scripts/extract_judgments.py
+--------------------------------------
+
+What this script does:
+
+- This script extracts text from the selected 100 PDF files.
+- It reads from:
+  - data/processed/judgments_100
+- It writes to:
+  - data/processed/extracted_100
+
+How it extracts text:
+
+- It uses PyMuPDF, imported as fitz.
+- It opens each PDF.
+- It goes page by page.
+- For each page, it calls:
+  - page.get_text("text")
+- It strips extra spaces from each page text.
+- It joins all page texts using blank lines between pages.
+
+Why page boundaries are kept:
+
+- Page boundaries are kept by joining pages with blank lines.
+- This helps later cleaning steps detect repeated headers and footers.
+
+What each output JSON contains:
+
+- source_file
+  - Original PDF file name.
+
+- year
+  - Taken from the parent folder name of the PDF.
+
+- pages
+  - Number of pages in the PDF.
+
+- text
+  - Extracted raw text from the PDF.
+
+Simple summary:
+
+- This script changes PDFs into JSON files containing raw text.
+- It does not deeply clean the text yet.
+
+
+Script 4: scripts/clean_judgments.py
+------------------------------------
+
+What this script does:
+
+- This script cleans the extracted judgment text.
+- It also extracts useful metadata from the judgment.
+- It reads from:
+  - data/processed/extracted_100
+- It writes to:
+  - data/processed/cleaned_100
+
+Main cleaning steps:
+
+- Normalizes Unicode text.
+  - Converts text into a standard Unicode form.
+  - Replaces non-breaking spaces with normal spaces.
+  - Removes hidden characters like zero-width spaces and byte-order marks.
+
+- Normalizes whitespace.
+  - Reduces repeated spaces and tabs.
+  - Keeps paragraph breaks.
+
+- Removes front matter.
+  - It looks for the last "JUDGMENT:" marker.
+  - It starts the main text after that marker.
+  - If possible, it starts from the first numbered paragraph.
+
+- Removes noisy lines.
+  - Removes repeated case title headers.
+  - Removes Indian Kanoon URL lines.
+  - Removes digital signature lines.
+  - Removes standalone page numbers.
+
+- Removes embedded repeated case headers.
+  - It builds a flexible pattern using the case title and date.
+  - It removes repeated case-title/date text that appears inside the body.
+
+- Normalizes paragraphs again after cleaning.
+
+Metadata extracted by this script:
+
+- year
+  - First tries to find year from filename.
+  - If not found, tries to find a date in the text.
+
+- date
+  - First tries to extract date from filename patterns like:
+    - on_14_May_1954
+  - If not found, tries common date formats in the text.
+
+- case_title
+  - Prefers the filename because filenames contain case titles.
+  - Removes year prefix.
+  - Removes trailing numbering.
+  - Removes the date part from the filename.
+  - Replaces underscores with spaces.
+
+- citation
+  - Looks for fields like:
+    - Equivalent citations:
+    - CITATION:
+
+- bench
+  - Looks for a Bench: field.
+
+- petitioner and respondent
+  - Looks for petitioner/respondent patterns.
+  - Also handles simple "X vs Y" style patterns.
+
+What each cleaned JSON contains:
+
+- source_file
+- year
+- pages
+- case_title
+- date
+- citation
+- bench
+- petitioner
+- respondent
+- text
+
+Simple summary:
+
+- This script turns raw extracted text into cleaner judgment text.
+- It also adds important case metadata used later during search.
+
+
+Script 5: scripts/chunk_judgments.py
+------------------------------------
+
+What this script does:
+
+- This script splits each cleaned judgment into smaller text chunks.
+- It reads from:
+  - data/processed/cleaned_100
+- It writes to:
+  - data/processed/chunks/baseline/chunks.jsonl
+  - data/processed/chunks/baseline/stats.json
+
+Why chunking is needed:
+
+- Full judgments are too long for efficient search.
+- Search works better when each judgment is divided into smaller meaningful pieces.
+- Each piece is called a chunk.
+
+Chunk size target:
+
+- Minimum target:
+  - 150 words
+
+- Maximum target:
+  - 300 words
+
+How it creates chunks:
+
+- It first normalizes text.
+  - Converts Windows line breaks to normal line breaks.
+  - Reduces repeated spaces.
+  - Reduces too many blank lines.
+
+- It splits the judgment into paragraphs.
+  - Blank lines are treated as paragraph boundaries.
+
+- It checks large paragraphs.
+  - If a paragraph is larger than 300 words, it splits it further.
+  - It tries to split using sentence boundaries.
+  - If a sentence itself is too long, it splits by word count.
+
+- It builds chunks by joining paragraphs.
+  - It adds paragraphs to the current chunk.
+  - If adding a paragraph would cross 300 words, it closes the current chunk.
+  - Once the current chunk reaches at least 150 words, it closes the chunk.
+
+Metadata added to each chunk:
+
+- document_id
+- parent_document_id
+- chunk_id
+- case_title
+- date
+- year
+- citation
+- bench
+- petitioner
+- respondent
+- section
+- chunking_strategy
+- chunk_index
+- text
+- word_count
+- char_start
+- char_end
+
+What the current stats show:
+
+- Documents processed:
+  - 100
+
+- Total chunks:
+  - 2122
+
+- Average words per chunk:
+  - 230.76
+
+- Maximum words:
+  - 300
+
+- Chunks within 150 to 300 words:
+  - 1720
+
+- Chunks below 150 words:
+  - 402
+
+- Chunks above 300 words:
+  - 0
+
+Simple summary:
+
+- This script transforms each cleaned judgment into many smaller searchable chunks.
+- These chunks are the main text units used by embeddings, FAISS, BM25, and search.
+
+
+Script 6: scripts/generate_embeddings_100.py
+--------------------------------------------
+
+What this script does:
+
+- This script converts each chunk into a numerical vector.
+- It reads from:
+  - data/processed/chunks/baseline/chunks.jsonl
+- It writes to:
+  - embeddings/baseline_100/embeddings.npy
+  - embeddings/baseline_100/metadata.jsonl
+
+Model used:
+
+- law-ai/InLegalBERT
+
+Why embeddings are needed:
+
+- Text cannot be directly searched by FAISS.
+- FAISS searches numbers/vectors.
+- An embedding is a vector representation of text.
+- Similar legal text should have similar vectors.
+
+How it creates embeddings:
+
+- It loads the InLegalBERT tokenizer.
+- It loads the InLegalBERT model.
+- It uses GPU if CUDA is available.
+- Otherwise it uses CPU.
+
+- It loads all chunks from chunks.jsonl.
+- It processes chunks in batches of 16.
+- For each batch:
+  - It takes the chunk text.
+  - It tokenizes the text.
+  - It pads shorter inputs.
+  - It truncates longer inputs to 512 tokens.
+  - It passes the tokens through InLegalBERT.
+
+How one vector is created from token vectors:
+
+- InLegalBERT gives embeddings for tokens.
+- The script uses mean pooling.
+- Mean pooling means:
+  - take all token embeddings
+  - ignore padding tokens
+  - average the real token embeddings
+- This creates one vector for one chunk.
+
+Normalization:
+
+- The script applies L2 normalization.
+- This makes each vector length close to 1.
+- This is useful because FAISS later uses inner product similarity.
+
+Validation done by the script:
+
+- Prints number of embeddings.
+- Prints embedding dimension.
+- Checks if embeddings contain NaN values.
+- Checks if embeddings contain Inf values.
+- Checks vector norms.
+
+Metadata saved:
+
+- embeddings.npy contains only vectors.
+- metadata.jsonl contains the matching chunk data.
+- The order is important:
+  - vector number 0 matches metadata line 0
+  - vector number 1 matches metadata line 1
+  - and so on
+
+Simple summary:
+
+- This script changes every text chunk into a vector.
+- It also saves chunk metadata in the same order as the vectors.
+
+
+Script 7: scripts/build_faiss_100.py
+------------------------------------
+
+What this script does:
+
+- This script builds the dense vector search index.
+- It reads from:
+  - embeddings/baseline_100/embeddings.npy
+  - embeddings/baseline_100/metadata.jsonl
+- It writes to:
+  - index/baseline_100/legal_judgments.faiss
+
+Why FAISS is needed:
+
+- FAISS makes vector similarity search fast.
+- It is used to find chunks whose meaning is close to a user query.
+
+How it builds the index:
+
+- It loads embeddings.npy as float32.
+- It checks that embeddings are a 2D array.
+- It checks that embeddings do not contain NaN values.
+- It checks that embeddings do not contain Inf values.
+- It loads metadata.jsonl.
+- It checks that:
+  - number of embeddings = number of metadata records
+
+Index type used:
+
+- faiss.IndexFlatIP
+
+What IndexFlatIP means:
+
+- Flat means it stores all vectors directly.
+- IP means inner product similarity.
+- Because embeddings are already L2-normalized, inner product works like cosine similarity.
+
+How it saves the result:
+
+- It adds all embeddings to the FAISS index.
+- It writes the index to:
+  - index/baseline_100/legal_judgments.faiss
+
+Validation done:
+
+- It reloads the saved FAISS index.
+- It checks the index type.
+- It checks vector dimension.
+- It checks number of vectors stored.
+- It checks that vector count matches metadata count.
+
+Simple summary:
+
+- This script creates the final FAISS file used for dense semantic search.
+
+
+Script 8: scripts/bm25/build_bm25.py
+------------------------------------
+
+What this script does:
+
+- This script builds the BM25 keyword search index.
+- It reads from:
+  - embeddings/baseline_100/metadata.jsonl
+- It writes to:
+  - index/bm25/bm25.pkl
+  - index/bm25/bm25_metadata.pkl
+
+Why BM25 is needed:
+
+- FAISS searches by meaning.
+- BM25 searches by words/keywords.
+- BM25 is useful when exact legal words or phrases matter.
+
+How it tokenizes text:
+
+- It takes the chunk text.
+- It converts it to lowercase.
+- It extracts word tokens using this regex:
+  - \b\w+\b
+
+How it builds the BM25 index:
+
+- It loads every chunk from metadata.jsonl.
+- It tokenizes the text of each chunk.
+- It passes the tokenized chunks to BM25Okapi.
+- This creates a BM25 index over all chunks.
+
+How it saves the result:
+
+- It saves the BM25 index object to:
+  - index/bm25/bm25.pkl
+
+- It saves the same metadata list to:
+  - index/bm25/bm25_metadata.pkl
+
+Why metadata is saved again:
+
+- BM25 returns document positions.
+- The metadata file tells which chunk belongs to each position.
+- The order must match the BM25 index order.
+
+Simple summary:
+
+- This script creates the final BM25 files used for keyword-based search.
+
+
+How the final search data is connected
+--------------------------------------
+
+- FAISS uses:
+  - index/baseline_100/legal_judgments.faiss
+  - embeddings/baseline_100/metadata.jsonl
+
+- BM25 uses:
+  - index/bm25/bm25.pkl
+  - index/bm25/bm25_metadata.pkl
+
+- Both FAISS and BM25 use chunk positions.
+- That means position/index alignment is very important.
+
+Example:
+
+- FAISS vector 10 must refer to metadata record 10.
+- BM25 document 10 must refer to BM25 metadata record 10.
+- If this order changes, search results can point to the wrong judgment chunk.
+
+
+Scripts not included as final 100 data transformation scripts
+-------------------------------------------------------------
+
+- scripts/clean_chunks.py
+  - This writes to data/processed/final_chunks.
+  - The current final 100 embedding script does not read from final_chunks.
+  - Therefore it is not part of the final baseline_100 pipeline.
+
+- scripts/generate_embeddings.py
+  - This reads from data/processed/final_chunks.
+  - The final 100 pipeline uses scripts/generate_embeddings_100.py instead.
+
+- scripts/build_faiss_index.py
+  - This builds a non-100/default FAISS index.
+  - The final 100 pipeline uses scripts/build_faiss_100.py instead.
+
+- scripts/create_metadata_db.py
+  - This creates a SQLite metadata database from final_chunks.
+  - The current final 100 search pipeline uses metadata.jsonl and pickle metadata instead.
+
+- scripts/testing/*.py
+  - These scripts test or run search.
+  - They use the final data, but they do not create the final data.
+
+- scripts/eval/*.py and scripts/explain/*.py
+  - These are for evaluation, training, or explanations.
+  - They are not part of creating the final 100-case transformed data.
+
+
+Short one-line pipeline
+-----------------------
+
+data/processed/judgments
+-> select 100 PDFs
+-> extract PDF text
+-> clean text and metadata
+-> create chunks
+-> create InLegalBERT embeddings
+-> build FAISS index
+-> build BM25 index
+-> final 100-case searchable data
+
+
+Recommended script running order
+--------------------------------
+
+1. python scripts/select_database.py
+2. python scripts/select_100_cases.py
+3. python scripts/extract_judgments.py
+4. python scripts/clean_judgments.py
+5. python scripts/chunk_judgments.py
+6. python scripts/generate_embeddings_100.py
+7. python scripts/build_faiss_100.py
+8. python scripts/bm25/build_bm25.py
+
+Note:
+
+- If data/processed/judgments already exists and is correct, step 1 can be skipped.
+- If you want the "most recent 100" logic to work correctly, data/processed/judgments should ideally have year folders, or scripts/select_100_cases.py should be updated to read the year from filenames too.

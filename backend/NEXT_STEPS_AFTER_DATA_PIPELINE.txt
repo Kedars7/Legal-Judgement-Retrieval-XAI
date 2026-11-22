@@ -1,0 +1,1010 @@
+NEXT STEPS AFTER FINAL 100 CASE DATA IS CREATED
+===============================================
+
+Purpose of this document
+------------------------
+
+- This file explains what happens after the final 100-case data is created.
+- It explains how the final data is used for search, ranking, evaluation, model training, and explanations.
+- It explains the scripts in simple point-wise language.
+- It only focuses on scripts that are used after the final 100-case search data exists.
+
+
+Starting point for these next steps
+-----------------------------------
+
+These steps assume the following final data files already exist:
+
+- embeddings/baseline_100/metadata.jsonl
+  - Chunk text and metadata.
+
+- embeddings/baseline_100/embeddings.npy
+  - Vector embeddings for the chunks.
+
+- index/baseline_100/legal_judgments.faiss
+  - FAISS dense-search index.
+
+- index/bm25/bm25.pkl
+  - BM25 keyword-search index.
+
+- index/bm25/bm25_metadata.pkl
+  - BM25 metadata aligned with the BM25 index.
+
+
+Main next-step flow
+-------------------
+
+1. Load the final data files.
+2. Convert the user query into an embedding.
+3. Search using FAISS dense retrieval.
+4. Search using BM25 keyword retrieval.
+5. Combine FAISS and BM25 results using Reciprocal Rank Fusion.
+6. Limit repeated chunks from the same judgment.
+7. Extract ranking and matching features.
+8. Use a trained Random Forest model to predict relevance.
+9. Use SHAP to explain the relevance prediction.
+10. Format the final result for API/frontend use.
+
+
+Important output files in this stage
+------------------------------------
+
+- eval/relevance_dataset.csv
+  - Candidate search results and extracted features.
+  - Relevance labels are empty at first.
+
+- eval/relevance_dataset_with_evidence.csv
+  - Same dataset, but with evidence text added.
+
+- eval/relevance_dataset_labeled.csv
+  - Manually labeled version of the relevance dataset.
+  - This is used for training the relevance model.
+
+- ranking/models/relevance_model.pkl
+  - Trained Random Forest relevance model.
+
+- eval/shap_explanations.csv
+  - Feature-level SHAP values for candidates.
+
+- eval/retrieval_explanations.csv
+  - Human-readable explanations built from SHAP values.
+
+- eval/candidate_explanations.json
+  - Candidate-level explanation JSON.
+
+
+Script 1: scripts/testing/search_hybrid.py
+------------------------------------------
+
+What this script does:
+
+- This script performs hybrid legal judgment search.
+- It combines:
+  - Dense semantic search using InLegalBERT + FAISS.
+  - Keyword search using BM25.
+  - Reciprocal Rank Fusion for final ranking.
+- It can be used interactively from the terminal.
+- Other scripts also import functions from this file.
+
+Files used by this script:
+
+- index/baseline_100/legal_judgments.faiss
+- embeddings/baseline_100/metadata.jsonl
+- index/bm25/bm25.pkl
+- index/bm25/bm25_metadata.pkl
+
+Model used:
+
+- law-ai/InLegalBERT
+
+Main settings:
+
+- DENSE_TOP_K = 50
+  - Gets top 50 candidates from FAISS.
+
+- BM25_TOP_K = 50
+  - Gets top 50 candidates from BM25.
+
+- HYBRID_TOP_K = 10
+  - Keeps final top 10 hybrid results.
+
+- MAX_CHUNKS_PER_JUDGMENT = 2
+  - Allows at most 2 chunks from the same judgment.
+
+- RRF_K = 60
+  - Constant used in Reciprocal Rank Fusion.
+
+How it loads resources:
+
+- load_model()
+  - Loads InLegalBERT tokenizer.
+  - Loads InLegalBERT model.
+  - Moves model to GPU if CUDA is available.
+  - Otherwise uses CPU.
+
+- load_faiss()
+  - Loads the FAISS index from legal_judgments.faiss.
+
+- load_metadata()
+  - Loads chunk metadata from metadata.jsonl.
+
+- load_bm25()
+  - Loads BM25 index from bm25.pkl.
+  - Loads BM25 metadata from bm25_metadata.pkl.
+  - Checks that BM25 document count matches metadata count.
+
+- validate_mapping()
+  - Checks that FAISS vector count matches metadata count.
+  - Checks that BM25 document count matches BM25 metadata count.
+  - Checks that FAISS metadata and BM25 metadata have the same count.
+
+How dense search works:
+
+- The user query is tokenized using InLegalBERT tokenizer.
+- The query is truncated to 512 tokens if needed.
+- The query is passed through InLegalBERT.
+- Mean pooling is used to create one vector for the query.
+- The query vector is L2-normalized.
+- FAISS searches this query vector against stored chunk vectors.
+- It returns top dense candidates with:
+  - vector_id
+  - dense_score
+  - dense_rank
+
+How BM25 search works:
+
+- The query is converted to lowercase word tokens.
+- BM25 scores all indexed chunks.
+- The top 50 BM25 candidates are selected.
+- It returns candidates with:
+  - vector_id
+  - bm25_score
+  - bm25_rank
+
+How hybrid ranking works:
+
+- dense_search() returns dense candidates.
+- bm25_search() returns BM25 candidates.
+- hybrid_rrf() combines both lists.
+- For each candidate:
+  - if it appears in dense results, dense rank contributes to RRF score.
+  - if it appears in BM25 results, BM25 rank contributes to RRF score.
+- The formula used is:
+  - 1 / (RRF_K + rank)
+- A candidate can get score from dense search, BM25 search, or both.
+- Candidates are sorted by rrf_score in descending order.
+
+How diversification works:
+
+- diversify_by_judgment() prevents one judgment from dominating results.
+- It uses document_id, parent_document_id, or case_title as the judgment identifier.
+- It keeps at most 2 chunks from the same judgment.
+- It attaches the chunk metadata to each final result.
+- It stops after final top 10 results.
+
+Simple summary:
+
+- This script is the main retrieval script.
+- It converts a query into dense and keyword search results.
+- Then it combines both result types into final hybrid results.
+
+
+Script 2: ranking/feature_extractor.py
+--------------------------------------
+
+What this script does:
+
+- This script extracts features from one search result.
+- These features are later used by:
+  - relevance dataset creation
+  - relevance model training
+  - SHAP explanations
+  - live API explanations
+
+Input:
+
+- query
+- one hybrid search result
+
+Output:
+
+- A feature dictionary.
+
+Main features created:
+
+- dense_score
+  - Score from FAISS dense search.
+
+- dense_rank
+  - Rank from FAISS dense search.
+
+- bm25_score
+  - Score from BM25 keyword search.
+
+- bm25_rank
+  - Rank from BM25 keyword search.
+
+- rrf_score
+  - Hybrid Reciprocal Rank Fusion score.
+
+- keyword_overlap
+  - How many important query words appear in the chunk.
+
+- query_term_coverage
+  - How much of the query is covered by the chunk text.
+
+- article_overlap
+  - Match ratio for Article references like Article 14 or Article 21.
+
+- section_overlap
+  - Match ratio for Section references like Section 302.
+
+- legal_reference_overlap
+  - Match ratio for all legal references combined.
+
+- matched_keywords
+  - Actual matched keywords.
+
+- matched_articles
+  - Actual matched Article references.
+
+- matched_sections
+  - Actual matched Section references.
+
+- matched_legal_references
+  - All matched legal references.
+
+How it extracts legal references:
+
+- It searches for patterns like:
+  - Article 14
+  - Article 21
+  - Article 14(1)
+  - Section 302
+  - Section 57
+
+- It separates references into:
+  - articles
+  - sections
+
+How it extracts keyword overlap:
+
+- It removes common stopwords like:
+  - the
+  - is
+  - are
+  - of
+  - in
+  - under
+
+- It removes legal reference text before normal keyword matching.
+- It compares remaining query terms with document terms.
+- It calculates overlap as a ratio.
+
+Simple summary:
+
+- This script converts one retrieved result into numeric and text-matching features.
+- These features help the system decide and explain relevance.
+
+
+Script 3: scripts/eval/create_relevance_dataset.py
+--------------------------------------------------
+
+What this script does:
+
+- This script creates a relevance dataset for model training.
+- It runs the hybrid search pipeline on a fixed set of legal queries.
+- It extracts features for each retrieved candidate.
+- It saves everything into a CSV file.
+
+Input files used:
+
+- FAISS index
+- FAISS metadata
+- BM25 index
+- BM25 metadata
+- InLegalBERT model
+
+Output file:
+
+- eval/relevance_dataset.csv
+
+Queries used:
+
+- The script contains 20 predefined legal queries.
+- These queries cover topics like:
+  - Article 14
+  - Article 19
+  - Article 21
+  - Article 32
+  - Article 226
+  - preventive detention
+  - election writs
+  - retrospective tax
+  - constitutional validity
+
+How it creates the dataset:
+
+- It loads the same hybrid retrieval resources as search_hybrid.py.
+- For each query:
+  - runs dense FAISS search.
+  - runs BM25 search.
+  - combines results using RRF.
+  - diversifies results by judgment.
+  - keeps top 10 candidates.
+  - extracts features for each candidate.
+  - stores candidate information in a row.
+
+Important columns in the CSV:
+
+- query_id
+- query
+- candidate_rank
+- case_title
+- document_id
+- chunk_id
+- dense_score
+- dense_rank
+- bm25_score
+- bm25_rank
+- rrf_score
+- keyword_overlap
+- query_term_coverage
+- article_overlap
+- section_overlap
+- legal_reference_overlap
+- matched_keywords
+- matched_articles
+- matched_sections
+- matched_legal_references
+- relevance
+
+Important note:
+
+- The relevance column is intentionally empty.
+- It is meant to be filled manually.
+- The model needs these labels to learn what is relevant and not relevant.
+
+Current output in this repo:
+
+- eval/relevance_dataset.csv contains 200 rows.
+- This comes from:
+  - 20 queries x 10 candidates each = 200 rows.
+
+Simple summary:
+
+- This script creates the training/evaluation table from actual search results.
+- It does not train the model yet.
+
+
+Script 4: scripts/eval/add_evidence_to_dataset.py
+-------------------------------------------------
+
+What this script does:
+
+- This script adds the full chunk text as evidence into the relevance dataset.
+- It reads chunk_id from the dataset.
+- It looks up the matching text in metadata.jsonl.
+
+Input files:
+
+- eval/relevance_dataset.csv
+- embeddings/baseline_100/metadata.jsonl
+
+Output file:
+
+- eval/relevance_dataset_with_evidence.csv
+
+How it works:
+
+- It loads all chunk metadata from metadata.jsonl.
+- It creates a lookup dictionary:
+  - key = chunk_id
+  - value = metadata record
+
+- It reads each row in relevance_dataset.csv.
+- For each row:
+  - it takes chunk_id.
+  - finds the matching chunk in metadata.
+  - adds the chunk text as evidence.
+
+Why this step is useful:
+
+- Relevance labeling is easier when the evidence text is visible.
+- The person labeling can read the exact chunk that was retrieved.
+
+Simple summary:
+
+- This script makes the relevance dataset easier to label by adding evidence text.
+
+
+Manual Step: eval/relevance_dataset_labeled.csv
+-----------------------------------------------
+
+What this file is:
+
+- This is the manually labeled version of the relevance dataset.
+- The script train_relevance_model.py reads this file.
+
+What manual labeling means:
+
+- A human checks each candidate result.
+- The human decides if the retrieved chunk is relevant to the query.
+- The relevance column is filled with labels.
+
+Common label meaning:
+
+- 1 means relevant.
+- 0 means not relevant.
+
+Current file in this repo:
+
+- eval/relevance_dataset_labeled.csv contains 200 rows.
+
+Simple summary:
+
+- This file is not created automatically by a training script.
+- It is the labeled dataset needed before model training can happen.
+
+
+Script 5: scripts/eval/train_relevance_model.py
+-----------------------------------------------
+
+What this script does:
+
+- This script trains a Random Forest relevance model.
+- It learns from the labeled relevance dataset.
+- It saves the trained model for later use.
+
+Input file:
+
+- eval/relevance_dataset_labeled.csv
+
+Output file:
+
+- ranking/models/relevance_model.pkl
+
+Features used for training:
+
+- dense_score
+- dense_rank
+- bm25_score
+- bm25_rank
+- rrf_score
+- keyword_overlap
+- query_term_coverage
+- article_overlap
+- section_overlap
+- legal_reference_overlap
+
+How it prepares data:
+
+- It reads the labeled CSV using pandas.
+- It converts feature columns into numeric values.
+- Missing values are filled with 0.
+- This is important because some candidates may not appear in one retrieval method.
+  - Example: a candidate may have BM25 score but no dense score.
+
+How it splits data:
+
+- It splits by query ID, not randomly by row.
+- Training queries:
+  - query_id 1 to 16
+- Testing queries:
+  - query_id 17 to 20
+
+Why split by query:
+
+- It tests the model on queries it did not train on.
+- This is better than mixing rows from the same query into both train and test.
+
+Model used:
+
+- RandomForestClassifier
+
+Main model settings:
+
+- n_estimators = 300
+  - Uses 300 trees.
+
+- max_depth = 6
+  - Limits tree depth.
+
+- min_samples_leaf = 3
+  - Each leaf must have at least 3 samples.
+
+- class_weight = balanced
+  - Helps if relevant and non-relevant labels are imbalanced.
+
+- random_state = 42
+  - Makes training repeatable.
+
+- n_jobs = -1
+  - Uses all available CPU cores.
+
+Evaluation printed by the script:
+
+- Accuracy
+- Precision
+- Recall
+- F1 Score
+- ROC-AUC if both classes exist in test data
+- Classification report
+- Confusion matrix
+- Feature importance
+
+How it saves the model:
+
+- It saves a dictionary using joblib.
+- The dictionary contains:
+  - model
+  - features
+
+Simple summary:
+
+- This script trains the relevance prediction model.
+- The saved model is later used by the API and explanation engine.
+
+
+Script 6: ranking/explanation_engine.py
+---------------------------------------
+
+What this script does:
+
+- This script loads the trained relevance model.
+- It uses SHAP to explain why the model predicted a result as relevant or not relevant.
+- It is used during live search in api/search_service.py.
+
+Input file:
+
+- ranking/models/relevance_model.pkl
+
+Main class:
+
+- RetrievalExplanationEngine
+
+How it loads the model:
+
+- It uses joblib.load().
+- It reads:
+  - model
+  - features
+
+How it prepares features:
+
+- It takes a candidate feature dictionary.
+- It keeps only the expected model features.
+- If a value is missing, it uses 0.
+- If a value cannot be converted to number, it uses 0.
+- It creates a pandas DataFrame with one row.
+
+How it predicts relevance:
+
+- It calls model.predict_proba().
+- This gives relevance probability.
+- It calls model.predict().
+- This gives final prediction:
+  - 1 for relevant
+  - 0 for not relevant
+
+How SHAP explanation works:
+
+- It creates shap.TreeExplainer for the Random Forest model.
+- It calculates SHAP values for the candidate.
+- SHAP values show how much each feature supports or opposes the relevance prediction.
+
+What it returns:
+
+- relevance_probability
+- prediction
+- relevance_prediction
+- feature_values
+- positive_factors
+- negative_factors
+
+Positive and negative factors:
+
+- Positive factors are features with positive SHAP contribution.
+- Negative factors are features with negative SHAP contribution.
+- The script keeps the top 5 positive and top 5 negative factors.
+
+Simple summary:
+
+- This script explains the relevance model decision for one search result.
+- It is used by the API to show why a result was suggested.
+
+
+Script 7: scripts/explain/explain_relevance.py
+----------------------------------------------
+
+What this script does:
+
+- This script creates SHAP explanations for the full labeled relevance dataset.
+- It is an offline report-building script.
+
+Input files:
+
+- eval/relevance_dataset_labeled.csv
+- ranking/models/relevance_model.pkl
+
+Output file:
+
+- eval/shap_explanations.csv
+
+How it works:
+
+- It loads the labeled dataset.
+- It prepares the same feature columns used in training.
+- It fills missing feature values with 0.
+- It loads the trained Random Forest model.
+- It creates a SHAP TreeExplainer.
+- It calculates SHAP values for all candidates.
+- It creates one row per:
+  - candidate
+  - feature
+
+What each output row contains:
+
+- query_id
+- query
+- candidate_rank
+- case_title
+- document_id
+- chunk_id
+- feature
+- feature_value
+- shap_value
+- direction
+- relevance
+
+Current output in this repo:
+
+- eval/shap_explanations.csv contains 2000 rows.
+- This is because:
+  - 200 candidates x 10 features = 2000 rows.
+
+Simple summary:
+
+- This script produces detailed feature-level SHAP values for analysis.
+
+
+Script 8: scripts/explain/build_explanations.py
+-----------------------------------------------
+
+What this script does:
+
+- This script converts raw SHAP values into human-readable explanations.
+- It reads feature-level SHAP values.
+- It writes explanation text for each non-neutral feature.
+
+Input file:
+
+- eval/shap_explanations.csv
+
+Output file:
+
+- eval/retrieval_explanations.csv
+
+How it works:
+
+- It loads shap_explanations.csv.
+- It converts shap_value and feature_value into numbers.
+- It ignores completely neutral SHAP values.
+- For each feature contribution:
+  - it gives a readable feature name.
+  - it marks direction as positive or negative.
+  - it creates a simple explanation sentence.
+
+Examples of readable feature names:
+
+- rrf_score becomes Hybrid RRF Score.
+- bm25_score becomes BM25 Score.
+- dense_score becomes Dense Similarity.
+- query_term_coverage becomes Query Term Coverage.
+- legal_reference_overlap becomes Legal Reference Overlap.
+
+Current output in this repo:
+
+- eval/retrieval_explanations.csv contains 1800 rows.
+- This is less than 2000 because neutral feature rows are skipped.
+
+Simple summary:
+
+- This script changes numeric SHAP output into readable explanation rows.
+
+
+Script 9: scripts/explain/build_candidate_explanations.py
+---------------------------------------------------------
+
+What this script does:
+
+- This script groups feature-level explanations into candidate-level JSON.
+- It makes explanations easier to use in an app or frontend.
+
+Input file:
+
+- eval/retrieval_explanations.csv
+
+Output file:
+
+- eval/candidate_explanations.json
+
+How it works:
+
+- It groups rows by:
+  - query_id
+  - candidate_rank
+  - case_title
+  - document_id
+  - chunk_id
+
+- For each candidate:
+  - it sorts features by SHAP contribution.
+  - it keeps top positive factors.
+  - it keeps top negative factors.
+  - it stores all feature contributions.
+
+What each candidate object contains:
+
+- query_id
+- query
+- candidate_rank
+- case_title
+- document_id
+- chunk_id
+- actual_relevance
+- positive_factors
+- negative_factors
+- all_feature_contributions
+
+Simple summary:
+
+- This script creates final JSON explanations at candidate level.
+- This is useful for displaying explanation summaries.
+
+
+Script 10: api/search_service.py
+--------------------------------
+
+What this script does:
+
+- This script is the main live search service used by the API.
+- It loads all required search and explanation components once.
+- It handles each user query and returns formatted results.
+
+Main class:
+
+- LegalSearchService
+
+What happens when the service starts:
+
+- It loads InLegalBERT tokenizer and model.
+- It loads FAISS index.
+- It loads metadata.jsonl.
+- It loads BM25 index and BM25 metadata.
+- It validates that all counts match.
+- It loads RetrievalExplanationEngine.
+
+What happens for each search query:
+
+1. Checks that the query is not empty.
+2. Runs dense FAISS retrieval.
+3. Runs BM25 retrieval.
+4. Combines both using RRF.
+5. Diversifies results by judgment.
+6. Keeps top_k results.
+7. Extracts features for each result.
+8. Uses the explanation engine to predict relevance and generate SHAP factors.
+9. Formats each result using ranking/api_formatter.py.
+10. Returns a final JSON response.
+
+Returned retrieval settings:
+
+- dense_top_k = 50
+- bm25_top_k = 50
+- max_chunks_per_judgment = 2
+- rrf_constant = 60
+
+Simple summary:
+
+- This script connects retrieval, relevance scoring, SHAP explanation, and API formatting.
+- It is the main backend search logic.
+
+
+Script 11: ranking/api_formatter.py
+-----------------------------------
+
+What this script does:
+
+- This script converts an internal search result into API-ready JSON.
+- It makes the response clean and structured.
+
+Input:
+
+- rank
+- one search result
+- one explanation object
+
+Output sections:
+
+- rank
+  - Final result rank.
+
+- case
+  - title
+  - date
+  - citation
+  - bench
+  - petitioner
+  - respondent
+
+- retrieval
+  - rrf_score
+  - dense_score
+  - dense_rank
+  - bm25_score
+  - bm25_rank
+
+- relevance
+  - model_score
+  - prediction
+
+- explanation
+  - positive_factors
+  - negative_factors
+  - feature_values
+
+- evidence
+  - The retrieved chunk text.
+
+How it formats values:
+
+- Scores are rounded.
+- SHAP contributions are rounded.
+- Missing dense or BM25 values are returned as null.
+- Explanation factors are simplified for frontend/API use.
+
+Simple summary:
+
+- This script prepares the final output structure returned to the user.
+
+
+Script 12: api/main.py
+----------------------
+
+What this script does:
+
+- This script creates the FastAPI application.
+- It exposes the legal search system through API endpoints.
+
+API title:
+
+- Legal Judgment Retrieval API
+
+What happens on startup:
+
+- It creates a LegalSearchService object.
+- This loads all models, indexes, metadata, and explanation tools.
+
+Request model:
+
+- SearchRequest
+
+Fields:
+
+- query
+  - Required.
+  - Minimum length is 3 characters.
+
+- top_k
+  - Default is 10.
+  - Minimum is 1.
+  - Maximum is 20.
+
+Endpoints:
+
+- GET /
+  - Returns service name, status, and version.
+
+- GET /health
+  - Returns health status.
+
+- POST /search
+  - Takes query and top_k.
+  - Calls search_service.search().
+  - Returns search results.
+
+Error handling:
+
+- If search service is not initialized:
+  - returns 503.
+
+- If query is invalid:
+  - returns 400.
+
+- If an unexpected error happens:
+  - returns 500.
+
+Simple summary:
+
+- This script is the API entry point.
+- It lets another app or frontend call the legal search system.
+
+
+Live search flow in one place
+-----------------------------
+
+User query
+-> api/main.py receives POST /search
+-> api/search_service.py handles query
+-> search_hybrid dense_search uses InLegalBERT + FAISS
+-> search_hybrid bm25_search uses BM25
+-> hybrid_rrf combines dense and BM25 results
+-> diversify_by_judgment limits repeated chunks
+-> feature_extractor creates features
+-> explanation_engine predicts relevance and creates SHAP explanation
+-> api_formatter creates clean API response
+-> API returns results with evidence and explanations
+
+
+Offline evaluation and explanation flow
+---------------------------------------
+
+Final search indexes
+-> create_relevance_dataset.py creates eval/relevance_dataset.csv
+-> add_evidence_to_dataset.py creates eval/relevance_dataset_with_evidence.csv
+-> human labels relevance and creates eval/relevance_dataset_labeled.csv
+-> train_relevance_model.py trains ranking/models/relevance_model.pkl
+-> explain_relevance.py creates eval/shap_explanations.csv
+-> build_explanations.py creates eval/retrieval_explanations.csv
+-> build_candidate_explanations.py creates eval/candidate_explanations.json
+
+
+Recommended running order for next steps
+----------------------------------------
+
+1. python scripts/eval/create_relevance_dataset.py
+2. python scripts/eval/add_evidence_to_dataset.py
+3. Manually label the relevance column and save as:
+   - eval/relevance_dataset_labeled.csv
+4. python scripts/eval/train_relevance_model.py
+5. python scripts/explain/explain_relevance.py
+6. python scripts/explain/build_explanations.py
+7. python scripts/explain/build_candidate_explanations.py
+8. Run the API using api/main.py through FastAPI/Uvicorn.
+
+
+Scripts that use final data but do not create new final training artifacts
+--------------------------------------------------------------------------
+
+- scripts/testing/search_faiss_100.py
+  - Tests FAISS search only.
+  - Useful for checking dense retrieval.
+
+- scripts/testing/search_bm25.py
+  - Tests BM25 search only.
+  - Useful for checking keyword retrieval.
+
+- scripts/testing/search_hybrid.py
+  - Tests complete hybrid retrieval.
+  - Also provides functions imported by other scripts.
+
+These are useful for testing and debugging, but the main production API path is:
+
+- api/main.py
+- api/search_service.py
+- ranking/feature_extractor.py
+- ranking/explanation_engine.py
+- ranking/api_formatter.py
+
+
+Short one-line summary
+----------------------
+
+Final 100-case indexes
+-> hybrid search
+-> feature extraction
+-> relevance model
+-> SHAP explanation
+-> formatted API response
+-> legal search result with evidence and explanation

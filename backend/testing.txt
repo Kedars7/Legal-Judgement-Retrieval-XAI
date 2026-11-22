@@ -1,0 +1,132 @@
+Query - The company had not agreed to pay amount given
+
+Query - What is the basic structure doctrine of the Constitution?
+
+
+To start the fast api service 
+        uvicorn api.main:app --reload
+
+-Go on http://127.0.0.1:8000/
+- Then on /docs
+- Then on /post search
+- Then on try it out
+- Write a Query 
+    ex. {
+        "query": "Whether the accused is entitled to protection under Article 14 of the Constitution",
+        "top_k": 1
+        }
+- Execute it
+
+
+
+
+
+
+
+
+Possible error
+
+Earlier, your working environment was:
+(venv) C:\Users\sawan\OneDrive\Desktop\Major project\Code\MP-backend>
+
+Your LegalSearchService successfully loaded:
+- InLegalBERT
+- FAISS
+- BM25
+- Random Forest relevance model
+- SHAP
+So joblib was already available in that environment.
+Right now you are using:
+(.venv) C:\Users\sawan\OneDrive\Desktop\Major project\Code\MP-backend>
+
+That's a different virtual environment.
+You have accidentally created/activated .venv, whereas the environment you were using for the actual project was venv.
+That's why this happened:
+(.venv)
+       ↓
+FastAPI installed successfully
+       ↓
+Uvicorn works
+       ↓
+LegalSearchService loads
+       ↓
+joblib
+       ↓
+ModuleNotFoundError
+
+The fact that joblib, SHAP, FAISS, etc. were already working a couple of hours ago strongly confirms this.
+Fix — switch back to venv
+1. Stop the server
+Press:
+CTRL + C
+
+2. Deactivate .venv
+Run:
+deactivate
+
+You should now see:
+C:\Users\sawan\OneDrive\Desktop\Major project\Code\MP-backend>
+
+without (.venv).
+3. Check which environments exist
+Run:
+dir
+
+Look for:
+venv
+.venv
+api
+ranking
+embeddings
+index
+...
+
+You should have your original:
+venv
+
+4. Activate the ORIGINAL environment
+Run:
+venv\Scripts\activate
+
+Your prompt should now say:
+(venv) C:\Users\sawan\OneDrive\Desktop\Major project\Code\MP-backend>
+
+Make sure it says (venv), not (.venv).
+5. Verify that this is actually the old environment
+Run:
+where python
+
+You want the first result to be something like:
+C:\Users\sawan\OneDrive\Desktop\Major project\Code\MP-backend\venv\Scripts\python.exe
+
+Then:
+python --version
+
+And importantly:
+python -c "import joblib, shap, faiss, torch; print('All project dependencies OK')"
+
+If this prints:
+All project dependencies OK
+
+do not install anything else.
+6. Test the exact thing that was working
+Before starting FastAPI, run:
+python api\search_service.py
+
+This is important because we already know from your earlier working run that this successfully loaded:
+InLegalBERT
+FAISS
+BM25
+Relevance Model
+SHAP
+
+If that works again, your original environment is restored.
+7. Start FastAPI
+Then run:
+python -m uvicorn api.main:app --reload
+
+You should get:
+INFO:     Uvicorn running on http://127.0.0.1:8000
+
+Then open:
+http://127.0.0.1:8000/docs

@@ -1,0 +1,30 @@
+{
+  "experiment": "Semantic vs BM25 vs Hybrid RRF",
+  "query_count": 20,
+  "final_k": 10,
+  "dense_top_k": 50,
+  "bm25_top_k": 50,
+  "rrf_k": 60,
+  "max_chunks_per_judgment": 2,
+  "methods": {
+    "semantic": {
+      "queries": 20,
+      "mean_results_returned": 10.0,
+      "total_results": 200
+    },
+    "bm25": {
+      "queries": 20,
+      "mean_results_returned": 10.0,
+      "total_results": 200
+    },
+    "hybrid_rrf": {
+      "queries": 20,
+      "mean_results_returned": 10.0,
+      "total_results": 200
+    }
+  },
+  "notes": [
+    "This experiment records retrieval rankings and scores.",
+    "It does not claim relevance-based superiority without common relevance labels for all returned candidates."
+  ]
+}

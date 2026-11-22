@@ -1,0 +1,20 @@
+POOLED RELEVANCE EVALUATION PREPARATION
+
+Retrieval rows: 600
+Unique query/chunk candidates: 445
+Unique queries: 20
+
+Candidates by method before pooling:
+bm25: 200
+hybrid_rrf: 200
+semantic: 200
+
+Previously judged pooled candidates: 199
+Candidates needing review: 246
+
+Files:
+C:\Users\sawan\OneDrive\Desktop\Major project\Code\MP-backend\eval\pooled_evaluation\pooled_candidates.csv
+C:\Users\sawan\OneDrive\Desktop\Major project\Code\MP-backend\eval\pooled_evaluation\candidates_to_review.csv
+
+No relevance metrics were calculated.
+Unjudged candidates must not be treated as irrelevant.

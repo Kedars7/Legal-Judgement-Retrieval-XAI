@@ -1,0 +1,167 @@
+====================================================================================================
+Query ID: 2
+Chunk ID: 1950_Brij_Bhushan_And_Anr_vs_The_State_Of_Delhi_on_2_March_1950_1_chunk_0002
+query: Whether a law violates the fundamental right to equality under Article 14
+case_title: Brij Bhushan And Anr vs The State Of Delhi
+Judgment: Brij Bhushan And Anr vs The State Of Delhi
+Document ID: 1950_Brij_Bhushan_And_Anr_vs_The_State_Of_Delhi_on_2_March_1950_1
+Date: 02/03/1950
+Chunk index: 2
+Word count: 295
+
+CHUNK TEXT:
+19(1)(a) and (2), which are to be read together, run as follows :- "19. (1) All citizens shall have the right - (a) to freedom of speech and expression; * * * (2) Nothing in sub-clause (a) of clause (1) shall affect the operation of any existing law in so far as it relates to, or prevent the State from making any law relating to, libel, slander, defamation, contempt of Court or any matter which offends against decency or morality or which undermines the security of, or tends to overthrow, the State." 4. It is contended that section 7(1) (c) of the Act, under which the impugned order has been made, cannot be saved by clause (2) of Art. 19 of the Constitution, because it does not relate to any matter which undermines the security of, or tends to overthrow, the State. Thus the main ground of attack is that the impugned law is an infringement of a fundamental right and is not saved by the so-called saving clause to which reference has been made. 5. There can be no doubt that no impose pre-censorship on a journal, such as has been ordered by the Chief Commissioner in this case, is a restriction on the liberty of the press which is included in the right to freedom of speech and expression guaranteed by Art. 19(1)(a) of the Constitution, and the only question which we have, therefore, to decide is whether clause (2) of Art. 19 stands in the way of the Petitioners. 6. The East Punjab Public Safety Act, 1949, of which section 7 is a part, was passed by the Provincial Legislature in exercise of the power conferred upon it by section 100 of the Government of India Act, 1935, read with entry No.
+
+====================================================================================================
+Query ID: 2
+Chunk ID: 1954_Budhan_Choudhry_And_Other_vs_The_State_Of_Bihar_on_2_December_1954_1_chunk_0002
+query: Whether a law violates the fundamental right to equality under Article 14
+case_title: Budhan Choudhry And Other vs The State Of Bihar
+Judgment: Budhan Choudhry And Other vs The State Of Bihar
+Document ID: 1954_Budhan_Choudhry_And_Other_vs_The_State_Of_Bihar_on_2_December_1954_1
+Date: 02/12/1954
+Chunk index: 2
+Word count: 289
+
+CHUNK TEXT:
+The appeal was thereupon placed before Reuben, C. J., who in agreement with S. K. Das, J., held that section 30 did not violate the inhibition of article 14. The learned Chief Justice upheld the conviction but reduced the sentence. On application by the appellants the High Court granted them a certificate under article 132(1) and the present appeal has been filed accordingly. The learned Advocate appearing in support of the appeal contends before us, as was done before the High Court, that there had been an infraction of the fundamental rights guaranteed to the appellants under article 14 of the Constitution of India. The complaint is that the appellants had been tried by a section 30 Magistrate and not by a Court of Session. A section 30 Magistrate is enjoined by that section to try the case brought before him as a Magistrate and accordingly in cases like the present case he will follow the warrant procedure which is different from the procedure followed by a Court of Session. The substance of the grievance is that a trial before the Sessions Judge is much more advantageous to the accused person in that he gets the benefit of the commitment proceedings before a Magistrate and then a trial before the Sessions Judge with the aid of the jury or assessors. It has not been seriously questioned before us that in spite of the risk of imposition of a punishment heavier than what a section 30 Magistrate can inflict, a trial by a Sessions Judge is of greater advantage to the accused than a trial before a Magistrate under the warrant procedure. We have, therefore, to see whether this apparent discrimination offends against the equal protection clause of our Constitution.
+
+====================================================================================================
+Query ID: 3
+Chunk ID: 1951_The_State_Of_Bombay_vs_Atma_Ram_Sridhar_Vaidya_on_25_January_1951_1_chunk_0025
+query: Whether preventive detention violates fundamental rights under the Constitution
+case_title: The State Of Bombay vs Atma Ram Sridhar Vaidya
+Judgment: The State Of Bombay vs Atma Ram Sridhar Vaidya
+Document ID: 1951_The_State_Of_Bombay_vs_Atma_Ram_Sridhar_Vaidya_on_25_January_1951_1
+Date: 25/01/1951
+Chunk index: 25
+Word count: 183
+
+CHUNK TEXT:
+Thus, while the first mentioned type of "additional" grounds cannot be given after the grounds are furnished in the first instance, the other types even if furnished after the grounds are furnished as soon as may be, but provided they are furnished so as not to come in conflict with giving the earliest opportunity to the detained person to make a repre- sentation, will not be considered an infringement of either of the rights mentioned in article 22 (5) of the Constitu- tion. This detailed examination shows that preventive deten- tion is not by itself considered an infringement of any of the fundamental rights mentioned in Part III of the Consti- tution. This is, of course, subject to the limitations prescribed in clause (5) of article 22. That clause, as noticed above, requires two things to be done for the person against whom the order is made. By reason of the fact that clause (5)forms part of Part III of the Constitution, its provisions have the same force and sanctity as any other provision relating to fundamental rights. As the clause prescribes two
+
+====================================================================================================
+Query ID: 6
+Chunk ID: 1953_State_Of_Travancore_Cochin_And_Others_vs_Shanmugha_Vilas_Cashew_Nut_Factoryand_on_8_May_1953_1_chunk_0037
+query: Whether a tax liability can be imposed retrospectively
+case_title: State Of Travancore Cochin And Others vs Shanmugha Vilas Cashew Nut Factoryand
+Judgment: State Of Travancore Cochin And Others vs Shanmugha Vilas Cashew Nut Factoryand
+Document ID: 1953_State_Of_Travancore_Cochin_And_Others_vs_Shanmugha_Vilas_Cashew_Nut_Factoryand_on_8_May_1953_1
+Date: 08/05/1953
+Chunk index: 37
+Word count: 213
+
+CHUNK TEXT:
+or purchase of the kind therein mentioned may not really take place in the delivery State, but nevertheless requires it to be treated as if it did. That is to say, the Explanation creates a legal fiction. Reference may be made to Income-tax Commissioner, Bombay v. Bombay Trust Corporation(1) where Viscount Dunedin explains the meaning of a legal fiction. When a legal fiction is thus created, for what purpose, one is led to ask at once, is it so created? In In re Coal Economising Gas Company(2) the question arose as to whether under section 38 of the Companies Act, 1867, a shareholder could get his name removed from the register on the ground that the prospectus was fraudulent in that it did not disclose certain, facts, or whether his remedy was against the promoter only. James L.J. said at pages 188-9: " The Act says that an omission shall be deemed fraudulent. It provides that something which under the general law would not be fraudulent shall be deemed fraudulent and we are dealing with a case of that kind. Where the Legislature provides that something is to be deemed other than it is, we must be careful to see within what bounds and for what purpose it is to be so deemed.
+
+====================================================================================================
+Query ID: 7
+Chunk ID: 1954_E_D_Sassoon_And_Company_Ltd_vs_The_Commissioner_Of_Income_Tax_Bombay_on_14_May_1954_1_chunk_0040
+query: Whether income received by a company is taxable under the applicable law
+case_title: E D Sassoon And Company Ltd vs The Commissioner Of Income Tax Bombay
+Judgment: E D Sassoon And Company Ltd vs The Commissioner Of Income Tax Bombay
+Document ID: 1954_E_D_Sassoon_And_Company_Ltd_vs_The_Commissioner_Of_Income_Tax_Bombay_on_14_May_1954_1
+Date: 14/05/1954
+Chunk index: 40
+Word count: 198
+
+CHUNK TEXT:
+The question still remains whether the remuneration for the broken periods accrued to the Sassoons and the contention which was strenuously urged before us on behalf of the transferees was that the Sassoons had rendered the services in terms of the Managing Agency Agreements to the respective Companies, that the services thus rendered were the source of income and whatever income could be attributed to those services was earned by the Sassoons and accrued to them in the chargeable accounting period though it was ascertained and paid in the year 1944 to the transferees. The word "earned" has not been used in section 4 of the Income-tax Act. The section talks of " income, profits and gains " from whatever source derived which (a) are received by or on behalf of the assessee, or (b) accrue or arise to the assessee in the taxable territories during the chargeable accounting period. Neither the word " income " nor the words "is received," "accrues" and " arises " have been defined in the Act. The Privy Council in Commissioner of Income-tax, Bengal v. Shau Wallace & Co.(1) attempted a definition of the term income " in the words following :-
+
+====================================================================================================
+Query ID: 10
+Chunk ID: 1951_In_Re__The_Delhi_Laws_Act_1912_The_vs_Unknown_on_23_May_1951_1_chunk_0148
+query: Whether a statute is inconsistent with the Constitution
+case_title: In Re The Delhi Laws Act 1912 The vs Unknown
+Judgment: In Re The Delhi Laws Act 1912 The vs Unknown
+Document ID: 1951_In_Re__The_Delhi_Laws_Act_1912_The_vs_Unknown_on_23_May_1951_1
+Date: 23/05/1951
+Chunk index: 148
+Word count: 85
+
+CHUNK TEXT:
+It may be that as a matter of wise and well-framed legislation it is better, if circumstances permit, to frame a statute in such a way that the offender may know in advance before what court he will be brought if he is charged with a given crime; but that is a question of policy, not of law. There is nothing of which their Lordships are aware in the Indian In Re: The Delhi Laws Act, 1912, The ... vs Unknown on 23 May, 1951
+
+====================================================================================================
+Query ID: 11
+Chunk ID: 1950_Brij_Bhushan_And_Another_vs_The_State_Of_Delhi_on_26_May_1950_1_chunk_0002
+query: Whether the State can restrict a fundamental right
+case_title: Brij Bhushan And Another vs The State Of Delhi
+Judgment: Brij Bhushan And Another vs The State Of Delhi
+Document ID: 1950_Brij_Bhushan_And_Another_vs_The_State_Of_Delhi_on_26_May_1950_1
+Date: 26/05/1950
+Chunk index: 2
+Word count: 294
+
+CHUNK TEXT:
+The only point argued before us relates to the consti- tutional validity of section 7 (1) (c) of the impugned Act which, as appears from its preamble, was passed "to provide special measures to ensure public safety and maintenance of public order." Section 7 (1) (c) under which the aforesaid order purports to have been made reads (so far as material here) as follows :-- "The Provincial Government or any authority authorised by it in this behalf if satisfied that such action is neces- sary for the purpose of preventing or combating any activity prejudicial to the public safety or the maintenance of public order may, by order in writing addressed to a print- er, publisher or editor require that any matter relating to a particular subject or class of subjects shall before publication be submitted for scrutiny." The petitioners claim that this provision infringes the fundamental right to the freedom of speech and expression conferred upon them by article 19 (1) (a) of the Constitu- tion inasmuch as it authorises the imposition of a restric- tion on the publication of the journal which is not justi- fied under clause (2) of that article. There can be little doubt that the imposition of precen- sorship on a journal is a restriction on the liberty of the press which is an essential part of the right to freedom of speech and expression declared by article 19 (1)(a). As pointed out by Blackstone in his Commentaries "the liberty of the press consists in laying no previous restraint upon publications, and not in freedom from censure for criminal matter when published. Every freeman has an undoubted right to lay what sentiments he pleases before the public; to forbid this, is to destroy the freedom of the press(1).
+
+====================================================================================================
+Query ID: 11
+Chunk ID: 1951_The_State_Of_Bombay_vs_Atma_Ram_Sridhar_Vaidya_on_25_January_1951_1_chunk_0005
+query: Whether the State can restrict a fundamental right
+case_title: The State Of Bombay vs Atma Ram Sridhar Vaidya
+Judgment: The State Of Bombay vs Atma Ram Sridhar Vaidya
+Document ID: 1951_The_State_Of_Bombay_vs_Atma_Ram_Sridhar_Vaidya_on_25_January_1951_1
+Date: 25/01/1951
+Chunk index: 5
+Word count: 286
+
+CHUNK TEXT:
+the detenue to make a proper representation, then there was a violation of the fundamental right and a contravention of the statutory provisions. That violation and that contra- vention cannot be set right by the detaining authority by amplifying or improving the grounds already given. As we said before, the point of time at which we have to decide whether there was a compliance or not with the provisions of article 22 (5) is the 29th of April, 1950, when the grounds were furnished, and not when further and better particulars were given on the 26th of August 1950." The learned Attor- ney-General, appearing for the appellant, has strenuously objected to this line of approach. As the question of vagueness of grounds for the order of detention and the question whether supplementary grounds could be furnished after the grounds were first given to the detenue have arisen in various High Courts, we think it right that the general principles should be properly appreciated. The Constitution of India has given legisla- tive powers to the States and the Central Government to pass laws permitting preventive detention. In order that a legis- lation permitting preventive detention may not be contended to be an infringement of the Fundamental Rights provided in Part III of the Constitution, article 22 lays down the permissible limits of legislation empowering preventive detention. Article 22 prescribes the minimum procedure that must be included in any law permitting preventive detention and as and when such requirements are not observed the detention, even if valid an initio, ceases to be "in accord- ance with procedure established by law" and infringes the fundamental right of the detenue guaranteed under articles 21 and 22 (s) of the Constitution.
+
+====================================================================================================
+Query ID: 13
+Chunk ID: 1950_Brij_Bhushan_And_Another_vs_The_State_Of_Delhi_on_26_May_1950_1_chunk_0002
+query: Whether the right to personal liberty is protected by the Constitution
+case_title: Brij Bhushan And Another vs The State Of Delhi
+Judgment: Brij Bhushan And Another vs The State Of Delhi
+Document ID: 1950_Brij_Bhushan_And_Another_vs_The_State_Of_Delhi_on_26_May_1950_1
+Date: 26/05/1950
+Chunk index: 2
+Word count: 294
+
+CHUNK TEXT:
+The only point argued before us relates to the consti- tutional validity of section 7 (1) (c) of the impugned Act which, as appears from its preamble, was passed "to provide special measures to ensure public safety and maintenance of public order." Section 7 (1) (c) under which the aforesaid order purports to have been made reads (so far as material here) as follows :-- "The Provincial Government or any authority authorised by it in this behalf if satisfied that such action is neces- sary for the purpose of preventing or combating any activity prejudicial to the public safety or the maintenance of public order may, by order in writing addressed to a print- er, publisher or editor require that any matter relating to a particular subject or class of subjects shall before publication be submitted for scrutiny." The petitioners claim that this provision infringes the fundamental right to the freedom of speech and expression conferred upon them by article 19 (1) (a) of the Constitu- tion inasmuch as it authorises the imposition of a restric- tion on the publication of the journal which is not justi- fied under clause (2) of that article. There can be little doubt that the imposition of precen- sorship on a journal is a restriction on the liberty of the press which is an essential part of the right to freedom of speech and expression declared by article 19 (1)(a). As pointed out by Blackstone in his Commentaries "the liberty of the press consists in laying no previous restraint upon publications, and not in freedom from censure for criminal matter when published. Every freeman has an undoubted right to lay what sentiments he pleases before the public; to forbid this, is to destroy the freedom of the press(1).
+
+====================================================================================================
+Query ID: 15
+Chunk ID: 1952_D_K_Nabhirajiah_vs_The_State_Of_Mysore_And_Others_on_26_May_1952_1_chunk_0009
+query: Whether a statutory provision violates Article 19 of the Constitution
+case_title: D K Nabhirajiah vs The State Of Mysore And Others
+Judgment: D K Nabhirajiah vs The State Of Mysore And Others
+Document ID: 1952_D_K_Nabhirajiah_vs_The_State_Of_Mysore_And_Others_on_26_May_1952_1
+Date: 26/05/1952
+Chunk index: 9
+Word count: 300
+
+CHUNK TEXT:
+period of 10 days specified in sub- clause (2), the landlord could not let the house or occupy it himself, and on allotment, he was bound to deliver up possession to the allottee. His rights as landlord were thus at an end so far as possession was concerned. Whether retrospective effect could be given to article 13 (1) of the Constitution arose for decision in Keshavan Madhava Menon v. The State of Bombay(1). Dealing with the argument that the said article rendered voidab initio and for all purposes an earlier law which was inconsistent with fundamental rights, it was laid down by this Court in that case "that such laws existed for all past transactions and for enforcing all rights and liabilities accrued before the date of the Constitution." (Per Das J., at page 234). Mr. Justice Mahajan observed at pages 249 and 250:-- "It is admitted that after the 26th January, 1950, there has been no infringement of the appellant's right of freedom of speech or expression. In September, 1949, he did not enjoy either complete freedom of speech or full freedom of expression. It is in relation to the freedom guaranteed in article 19 (1) of the Constitution to the citizen that the provisions of article 13 (1) come into play. the article does not declare any law void independ- ently of the existence of the freedoms guaranteed by Part III. A citizen must be possessed of a fundamental right before he can ask the court to declare a law which is incon- sistent with it void; but if a citizen is not possessed of the right, he cannot claim this relief." These remarks have application here. The learned Advocate for the petitioner sought to get over this difficulty by pointing out that the (1) [1951] S.C.R. 228.
+
+====================================================================================================
+Query ID: 16
+Chunk ID: 1953_Dr_Ram_Krishan_Bhardwaj_vs_The_State_Of_Delhi_And_Others_on_16_April_1953_1_chunk_0007
+query: Whether a statutory provision violates Article 21 of the Constitution
+case_title: Dr Ram Krishan Bhardwaj vs The State Of Delhi And Others
+Judgment: Dr Ram Krishan Bhardwaj vs The State Of Delhi And Others
+Document ID: 1953_Dr_Ram_Krishan_Bhardwaj_vs_The_State_Of_Delhi_And_Others_on_16_April_1953_1
+Date: 16/04/1953
+Chunk index: 7
+Word count: 164
+
+CHUNK TEXT:
+In this case, the petitioner has the right, under article 22(5), as interpreted by this Court by a majority, to be furnished with particulars of the grounds of his detention "sufficient to enable him to make a representation which on being considered may give relief to him." We are of opinion that this constitutional requirement must be satisfied with respect to each of the grounds communicated to the person detained, subject of course to a claim of privilege under clause (6) of article 22. That not having been done in regard to the ground mentioned in sub-paragraph (e) of paragraph 2 of the statement of grounds, the petitioner's detention cannot be held to be in accordance with the procedure established by law within the meaning of article 21. The petitioner is therefore entitled to be released and we accordingly direct him to be set at liberty forthwith. Petition allowed. Agent for the petitioner : Ganpat Rai. Agent for the respondent : G. H. Rajadhyaksha.
+
+====================================================================================================
+Query ID: 17
+Chunk ID: 1951_The_State_Of_Bombay_vs_Atma_Ram_Sridhar_Vaidya_on_25_January_1951_1_chunk_0020
+query: Whether a person has a right to approach the Supreme Court under Article 32
+case_title: The State Of Bombay vs Atma Ram Sridhar Vaidya
+Judgment: The State Of Bombay vs Atma Ram Sridhar Vaidya
+Document ID: 1951_The_State_Of_Bombay_vs_Atma_Ram_Sridhar_Vaidya_on_25_January_1951_1
+Date: 25/01/1951
+Chunk index: 20
+Word count: 248
+
+CHUNK TEXT:
+is un- sound. Although the ground may be good there may be a certain indefiniteness in its statement. Proceeding on the footing that there is some connection, i.e., the ground by itself is not so convincingly irrelevant and incapable of bringing about satisfaction in any rational person, the question whether such ground can give rise to the satisfac- tion required for making the order is outside the scope of the inquiry of the court. On the other hand, the question whether the vagueness or indefinite nature of the statements furnished to the detained person is such as to give him the earliest opportunity to make a representation to the author- ity is a matter within the jurisdiction of the court's inquiry and subject to the court's decision. The analogy sought to be drawn between a ground which can have no connection whatsoever with the order and a ground which on its face has connection with the order but is not definite in its statement, is clearly faulty. The extreme position, on the other hand, that there is no connection between the ground to be furnished and the representation to be made by the detained person under article 22 (5) is equally unsound, when the object in furnishing the ground is kept in mind. The conferment of the right to make a representation necessarily carries with it the obligation on the part of the detaining authority to furnish the grounds, i.e., materials on which the detention order was made.
